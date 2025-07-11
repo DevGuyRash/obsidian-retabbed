@@ -2,6 +2,7 @@
 *repomix*.xml
 *repomix*.md
 *repomix*.txt
+dist/
 
 # Logs
 logs
