@@ -1,0 +1,28 @@
+.tabs-editor-wrapper {
+  display: flex;
+}
+
+.tabs-outline {
+  width: 180px;
+  margin-left: 8px;
+  padding-left: 8px;
+  border-left: 1px solid var(--tabs-border-color);
+  overflow-y: auto;
+  animation: fadeInOutline 0.3s ease forwards;
+  opacity: 0;
+  transform: translateX(10px);
+}
+
+@keyframes fadeInOutline {
+  from { opacity: 0; transform: translateX(10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.tabs-outline-item {
+  cursor: pointer;
+  padding: 2px 0;
+}
+
+.tabs-outline-item:hover {
+  color: var(--tabs-nav-item-active-color);
+}

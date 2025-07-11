@@ -10,6 +10,7 @@ import TabsPlugin from "../../main";
 import { html } from "@codemirror/lang-html";
 import { markdown } from "@codemirror/lang-markdown";
 import { minimalSetup } from "codemirror";
+import { TabEditorOutline } from "./outline";
 
 export class TabEditor {
   plugin: TabsPlugin;
@@ -17,6 +18,8 @@ export class TabEditor {
   state: EditorState;
   editToolbarEl: HTMLElement;
   tabseditorEl: HTMLElement;
+  outline: TabEditorOutline;
+  editorWrapperEl: HTMLElement;
   historyTools: ButtonComponent[] = [];
   formatTools: ButtonComponent[] = [];
   paragraphTools: ButtonComponent[] = [];
@@ -29,10 +32,15 @@ export class TabEditor {
     this.plugin = plugin;
     // Toolbar
     plugin.settings.showToolbar && this.initToolbar(containerEl);
+    // wrapper for editor and outline
+    this.editorWrapperEl = containerEl.createDiv('tabs-editor-wrapper');
     // Editor init state
-    this.initEditor(containerEl, doc);
+    this.initEditor(this.editorWrapperEl, doc);
+    // Outline
+    this.outline = new TabEditorOutline(this.view, this.editorWrapperEl);
     // register events
     plugin.settings.showToolbar && this.registerToolbarEvents();
+    this.registerPasteHandler();
   }
 
   private addButton(icon: string, tooltip: string, buttonclass: string): ButtonComponent {
@@ -75,6 +83,7 @@ export class TabEditor {
       if (update.docChanged) {
         this.lastEditTime = Date.now();
         this.docChange = true;
+        this.outline && this.outline.update();
       }
     })
     // Create editor state
@@ -526,6 +535,37 @@ export class TabEditor {
         });
       }
     }
+  }
+
+  private registerPasteHandler() {
+    this.view.dom.addEventListener('paste', (e: ClipboardEvent) => {
+      const text = e.clipboardData?.getData('text/plain');
+      if (!text) return;
+      const sel = this.view.state.selection.main;
+      if (this.isInsideCodeBlock(sel.from) || this.isInsideBlockquote(sel.from)) {
+        e.preventDefault();
+        const formatted = text.split(/\r?\n/).map(l => '> ' + l).join('\n');
+        this.view.dispatch({
+          changes: { from: sel.from, to: sel.to, insert: formatted },
+          effects: EditorView.scrollIntoView(sel.from + formatted.length)
+        });
+      }
+    });
+  }
+
+  private isInsideCodeBlock(pos: number): boolean {
+    const lines = this.view.state.doc.toString().slice(0, pos).split('\n');
+    let inBlock = false;
+    for (const line of lines) {
+      const trim = line.trim();
+      if (trim.startsWith('```') || trim.startsWith('~~~')) inBlock = !inBlock;
+    }
+    return inBlock;
+  }
+
+  private isInsideBlockquote(pos: number): boolean {
+    const line = this.view.state.doc.lineAt(pos).text.trimStart();
+    return line.startsWith('>');
   }
 
   // extension: active line highlighter
