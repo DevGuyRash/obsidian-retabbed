@@ -1,0 +1,25 @@
+{
+  "bundles": {
+    "Base-779": {
+      "name": "Base",
+      "created": "2025-07-11T17:48:30.687Z",
+      "lastUsed": "2025-07-11T17:48:30.687Z",
+      "tags": [],
+      "files": [
+        "src",
+        "docs/changelog.md",
+        "docs/index.md",
+        "docs/installation.md",
+        "docs/quickstart.md",
+        "docs/showcase.md",
+        "docs/tabs.md",
+        "docs/tabsmodal.md",
+        "package.json",
+        "README.md",
+        "tsconfig.json",
+        "docs/usage",
+        "manifest.json"
+      ]
+    }
+  }
+}
